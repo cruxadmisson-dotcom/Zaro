@@ -24,8 +24,9 @@ Ein moderner Fashion-Shop, gebaut mit Next.js 15, Tailwind CSS und Framer Motion
 
 ## ⚠️ WICHTIG: Admin Panel & Produkte
 
-Da dieser Shop **keine externe Datenbank** verwendet (um es einfach und kostenlos zu halten), funktioniert das Admin-Panel (`/admin`) **nur lokal auf deinem PC**.
+Da dieser Shop **keine externe Datenbank** verwendet (um es einfach und kostenlos zu halten), funktioniert das Admin-Panel (`/admin`) **nur lokal auf deinem PC** oder mit GitHub Integration.
 
+### Option 1: Lokal (Einfach)
 **So fügst du neue Produkte hinzu:**
 1.  Starte den Shop auf deinem PC: `npm run dev`.
 2.  Gehe auf `http://localhost:3000/admin`.
@@ -39,9 +40,13 @@ Da dieser Shop **keine externe Datenbank** verwendet (um es einfach und kostenlo
     ```
 6.  Vercel aktualisiert die Website dann **automatisch** (dauert ca. 1-2 Minuten).
 
+### Option 2: Online (GitHub Token)
+Damit das Admin Panel auch auf `zaro.vercel.app/admin` funktioniert, musst du einen GitHub Token (`GITHUB_TOKEN`) in den Vercel Environment Variables hinterlegen.
+Dann werden Änderungen direkt in dein Repository gespeichert und lösen einen neuen Build aus.
+
 ## Features
 *   Modernes Design
-*   Admin Dashboard (Lokal)
-*   Bilder Upload (Lokal)
+*   Admin Dashboard (Lokal & Online mit GitHub Sync)
+*   Bilder Upload (Lokal & Online mit GitHub Sync)
 *   Farb-Varianten mit Bild-Wechsel
 *   Unterschiedliche Checkout-Links pro Farbe
