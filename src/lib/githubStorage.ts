@@ -9,6 +9,27 @@ const GITHUB_REPO = 'Zaro';
 const PRODUCTS_PATH = 'src/data/products.json';
 const IMAGES_DIR = 'public/images';
 
+export async function getProductsFromGitHub() {
+  if (!GITHUB_TOKEN) return null;
+  const octokit = new Octokit({ auth: GITHUB_TOKEN });
+  
+  try {
+    const { data } = await octokit.repos.getContent({
+      owner: GITHUB_OWNER,
+      repo: GITHUB_REPO,
+      path: PRODUCTS_PATH,
+    });
+    
+    if ('content' in data && data.content) {
+      const decoded = Buffer.from(data.content, 'base64').toString('utf-8');
+      return JSON.parse(decoded);
+    }
+  } catch (error) {
+    console.error('Failed to fetch from GitHub:', error);
+  }
+  return null;
+}
+
 export async function saveFileToGitHub(filePath: string, content: string | Buffer, message: string) {
   if (!GITHUB_TOKEN) {
     throw new Error('GITHUB_TOKEN not found in environment variables.');
