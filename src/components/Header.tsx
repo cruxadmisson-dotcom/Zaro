@@ -3,9 +3,12 @@
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, Search, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useShop } from '@/context/ShopContext';
 import { useRouter } from 'next/navigation';
+import AnnouncementBar from './AnnouncementBar';
+import ProductCard from '@/components/ProductCard';
+import { Product } from '@/lib/products';
 
 // Menu Data Structure
 interface MenuCategory {
@@ -71,8 +74,37 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  
   const { language, toggleLanguage, t } = useShop();
   const router = useRouter();
+
+  // Load products when search opens
+  useEffect(() => {
+    if (isSearchOpen && products.length === 0) {
+      fetch('/api/admin/products')
+        .then(res => res.json())
+        .then(data => setProducts(data))
+        .catch(console.error);
+    }
+  }, [isSearchOpen]);
+
+  // Live Search Logic
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    
+    const lowerQuery = searchQuery.toLowerCase();
+    const filtered = products.filter(p => 
+      p.name.toLowerCase().includes(lowerQuery) || 
+      p.brand.toLowerCase().includes(lowerQuery) ||
+      p.category.toLowerCase().includes(lowerQuery)
+    );
+    setSearchResults(filtered);
+  }, [searchQuery, products]);
 
   const handleSearch = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
@@ -82,212 +114,250 @@ export default function Header() {
   };
 
   return (
-    <header 
-      className="fixed top-0 left-0 right-0 z-50 bg-white text-black border-b border-gray-100"
-      onMouseLeave={() => setActiveMenu(null)}
-    >
-      <div className="container mx-auto px-6 h-20 flex justify-between items-center">
-        {/* Logo */}
-        <Link href="/" className="text-3xl font-black tracking-tighter uppercase">
-          ZARO<span className="font-light">FASHION</span>
-        </Link>
-        
-        {/* Main Nav */}
-        <nav className="hidden md:flex h-full items-center space-x-12 text-sm font-bold uppercase tracking-wider">
-          {['Herren', 'Damen', 'Marken'].map((item) => (
-            <div 
-              key={item}
-              className="h-full flex items-center cursor-pointer relative group"
-              onMouseEnter={() => setActiveMenu(item)}
-            >
-              <span className={`transition-colors ${activeMenu === item ? 'text-black' : 'text-gray-600 hover:text-black'}`}>
-                {t(`nav.${item === 'Herren' ? 'men' : item === 'Damen' ? 'women' : 'brands'}`)}
-              </span>
-              {activeMenu === item && (
-                <motion.div 
-                  layoutId="underline"
-                  className="absolute bottom-0 left-0 right-0 h-[2px] bg-black" 
-                />
-              )}
-            </div>
-          ))}
-        </nav>
+    <>
+      <AnnouncementBar />
+      <header 
+        className="fixed top-10 left-0 right-0 z-50 bg-white text-black border-b border-gray-100 transition-all"
+        onMouseLeave={() => setActiveMenu(null)}
+      >
+        <div className="container mx-auto px-6 h-20 flex justify-between items-center">
+          {/* Logo */}
+          <Link href="/" className="text-3xl font-black tracking-tighter uppercase">
+            ZARO<span className="font-light">FASHION</span>
+          </Link>
+          
+          {/* Main Nav */}
+          <nav className="hidden md:flex h-full items-center space-x-12 text-sm font-bold uppercase tracking-wider">
+            {['Herren', 'Damen', 'Marken'].map((item) => (
+              <div 
+                key={item}
+                className="h-full flex items-center cursor-pointer relative group"
+                onMouseEnter={() => setActiveMenu(item)}
+              >
+                <span className={`transition-colors ${activeMenu === item ? 'text-black' : 'text-gray-600 hover:text-black'}`}>
+                  {t(`nav.${item === 'Herren' ? 'men' : item === 'Damen' ? 'women' : 'brands'}`)}
+                </span>
+                {activeMenu === item && (
+                  <motion.div 
+                    layoutId="underline"
+                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-black" 
+                  />
+                )}
+              </div>
+            ))}
+          </nav>
 
-        {/* Icons */}
-        <div className="flex items-center space-x-6 text-sm font-medium">
-          <div className="hidden lg:flex items-center gap-4 text-gray-500">
-             {/* Search Icon */}
-             <button 
-               onClick={() => setIsSearchOpen(true)} 
-               className="hover:text-black transition-colors"
-             >
-               <Search className="w-5 h-5" />
-             </button>
-
-             <span>|</span>
-
-             {/* Language Selector */}
-             <div className="relative">
+          {/* Icons */}
+          <div className="flex items-center space-x-6 text-sm font-medium">
+            <div className="hidden lg:flex items-center gap-4 text-gray-500">
+               {/* Search Icon */}
                <button 
-                 onClick={() => setIsLangOpen(!isLangOpen)}
-                 className="hover:text-black flex items-center gap-2 text-lg"
+                 onClick={() => setIsSearchOpen(true)} 
+                 className="hover:text-black transition-colors"
                >
-                 {language === 'de' ? '🇩🇪' : '🇺🇸'}
+                 <Search className="w-5 h-5" />
                </button>
-               
-               {isLangOpen && (
-                 <div className="absolute top-full right-0 mt-2 bg-white border border-gray-100 shadow-xl rounded-lg p-2 min-w-[120px] flex flex-col gap-1">
-                   <button 
-                     onClick={() => { toggleLanguage('de'); setIsLangOpen(false); }}
-                     className={`flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-50 ${language === 'de' ? 'bg-gray-50 font-bold' : ''}`}
-                   >
-                     <span className="text-xl">🇩🇪</span> Deutsch
-                   </button>
-                   <button 
-                     onClick={() => { toggleLanguage('en'); setIsLangOpen(false); }}
-                     className={`flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-50 ${language === 'en' ? 'bg-gray-50 font-bold' : ''}`}
-                   >
-                     <span className="text-xl">🇺🇸</span> English
-                   </button>
-                 </div>
-               )}
-             </div>
-          </div>
-          <button className="p-2 hover:bg-gray-100 rounded-full transition-colors relative">
-            <ShoppingBag className="w-5 h-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-          </button>
-        </div>
-      </div>
 
-      {/* Search Overlay */}
-      <AnimatePresence>
-        {isSearchOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute top-0 left-0 right-0 h-24 bg-white z-50 flex items-center border-b border-gray-100 shadow-sm"
-          >
-            <div className="container mx-auto px-6 flex items-center gap-4">
-              <Search className="w-6 h-6 text-gray-400" />
-              <input 
-                type="text" 
-                placeholder={t('search.placeholder')}
-                className="flex-1 text-xl font-light outline-none placeholder-gray-300"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={handleSearch}
-                autoFocus
-              />
+               <span>|</span>
+
+               {/* Language Selector */}
+               <div className="relative">
+                 <button 
+                   onClick={() => setIsLangOpen(!isLangOpen)}
+                   className="hover:text-black flex items-center gap-2 text-lg"
+                 >
+                   {language === 'de' ? '🇩🇪' : '🇺🇸'}
+                 </button>
+                 
+                 {isLangOpen && (
+                   <div className="absolute top-full right-0 mt-2 bg-white border border-gray-100 shadow-xl rounded-lg p-2 min-w-[120px] flex flex-col gap-1">
+                     <button 
+                       onClick={() => { toggleLanguage('de'); setIsLangOpen(false); }}
+                       className={`flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-50 ${language === 'de' ? 'bg-gray-50 font-bold' : ''}`}
+                     >
+                       <span className="text-xl">🇩🇪</span> Deutsch
+                     </button>
+                     <button 
+                       onClick={() => { toggleLanguage('en'); setIsLangOpen(false); }}
+                       className={`flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-50 ${language === 'en' ? 'bg-gray-50 font-bold' : ''}`}
+                     >
+                       <span className="text-xl">🇺🇸</span> English
+                     </button>
+                   </div>
+                 )}
+               </div>
+            </div>
+            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors relative">
+              <ShoppingBag className="w-5 h-5" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+          </div>
+        </div>
+
+        {/* Search Overlay (Live Search) */}
+        <AnimatePresence>
+          {isSearchOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="fixed inset-0 bg-white z-[100] flex flex-col pt-10" // Full screen white overlay
+            >
+              {/* Close Button */}
               <button 
                 onClick={() => setIsSearchOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded-full"
+                className="absolute top-6 right-6 p-2 hover:bg-gray-100 rounded-full z-50"
               >
-                <X className="w-6 h-6" />
+                <X className="w-8 h-8" />
               </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* Mega Menu Dropdown */}
-      <AnimatePresence>
-        {activeMenu && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="absolute top-full left-0 right-0 bg-white border-b border-gray-100 shadow-xl py-12"
-            onMouseEnter={() => setActiveMenu(activeMenu)}
-            onMouseLeave={() => setActiveMenu(null)}
-          >
-            <div className="container mx-auto px-6">
-              <div className="flex gap-16">
-                
-                {/* Column 1: Kleidung (or Brands for Marken) */}
-                {activeMenu !== 'Marken' ? (
-                  <div className="w-48">
-                    <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">Kleidung</h3>
-                    <ul className="space-y-3 text-sm text-gray-600">
-                      {MENU_DATA[activeMenu]?.Kleidung?.map((item) => (
-                        <li key={item}>
-                          <Link href={`/category/${item.toLowerCase()}`} className="hover:text-black hover:underline transition-colors block">
-                            {item}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : (
-                   <div className="w-48">
-                    <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">Top Marken</h3>
-                    <ul className="space-y-3 text-sm text-gray-600">
-                      {MENU_DATA[activeMenu]?.Brands?.map((item) => (
-                        <li key={item}>
-                          <Link href={`/brand/${item.toLowerCase()}`} className="hover:text-black hover:underline transition-colors block">
-                            {item}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+              {/* Announcement Bar inside Overlay (Optional, but looks nice) */}
+              <div className="absolute top-0 left-0 right-0 h-10 bg-black text-white flex items-center justify-center text-xs font-bold tracking-widest uppercase">
+                KOSTENLOSE STANDARDLIEFERUNG FÜR ALLE BESTELLUNGEN
+              </div>
 
-                {/* Column 2: Accessories (Only for Herren/Damen) */}
-                {activeMenu !== 'Marken' && (
-                  <div className="w-48">
-                    <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">Accessories</h3>
-                    <ul className="space-y-3 text-sm text-gray-600">
-                      {MENU_DATA[activeMenu]?.Accessories?.map((item) => (
-                        <li key={item}>
-                          <Link href={`/category/${item.toLowerCase()}`} className="hover:text-black hover:underline transition-colors block">
-                            {item}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
+              {/* Search Input */}
+              <div className="container mx-auto px-6 mt-16">
+                <div className="flex justify-center mb-12">
+                  <div className="relative w-full max-w-3xl">
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
+                    <input 
+                      type="text" 
+                      placeholder={t('search.placeholder')}
+                      className="w-full text-2xl font-light outline-none border border-black py-4 pl-14 pr-4"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={handleSearch}
+                      autoFocus
+                    />
+                    <button className="absolute right-0 top-0 h-full bg-black text-white px-6">
+                      <Search className="w-6 h-6" />
+                    </button>
                   </div>
-                )}
-
-                {/* Column 3: Highlights (Only for Herren/Damen) */}
-                {activeMenu !== 'Marken' && (
-                  <div className="w-48">
-                    <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">Highlights</h3>
-                    <ul className="space-y-3 text-sm text-gray-600">
-                      {MENU_DATA[activeMenu]?.Highlights?.map((item) => (
-                        <li key={item}>
-                          <Link href="#" className="hover:text-black hover:underline transition-colors block">
-                            {item}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Column 4: Images */}
-                <div className="flex-1 grid grid-cols-3 gap-6">
-                  {MENU_DATA[activeMenu]?.Images?.map((img, idx) => (
-                    <div key={idx} className="group cursor-pointer">
-                      <div className="aspect-[3/4] overflow-hidden mb-3 bg-gray-100">
-                        <img 
-                          src={img.src} 
-                          alt={img.title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                      </div>
-                      <h4 className="font-bold text-xs uppercase tracking-widest group-hover:underline">{img.title}</h4>
-                    </div>
-                  ))}
                 </div>
 
+                {/* Live Results Grid */}
+                <div className="h-[calc(100vh-250px)] overflow-y-auto pb-20">
+                  {searchQuery && searchResults.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                      {searchResults.map(product => (
+                        <div key={product.id} onClick={() => { window.location.href = `/products/${product.id}`; setIsSearchOpen(false); }}>
+                          <ProductCard product={product} />
+                        </div>
+                      ))}
+                    </div>
+                  ) : searchQuery && searchResults.length === 0 ? (
+                    <p className="text-center text-gray-400 mt-12 text-lg">Keine Ergebnisse gefunden.</p>
+                  ) : (
+                    // Default State (Empty)
+                    <div className="text-center text-gray-400 mt-12 text-sm uppercase tracking-widest">
+                      Tippe, um Produkte zu suchen...
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Mega Menu Dropdown */}
+        <AnimatePresence>
+          {activeMenu && !isSearchOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="absolute top-full left-0 right-0 bg-white border-b border-gray-100 shadow-xl py-12"
+              onMouseEnter={() => setActiveMenu(activeMenu)}
+              onMouseLeave={() => setActiveMenu(null)}
+            >
+              <div className="container mx-auto px-6">
+                <div className="flex gap-16">
+                  
+                  {/* Column 1: Kleidung (or Brands for Marken) */}
+                  {activeMenu !== 'Marken' ? (
+                    <div className="w-48">
+                      <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">Kleidung</h3>
+                      <ul className="space-y-3 text-sm text-gray-600">
+                        {MENU_DATA[activeMenu]?.Kleidung?.map((item) => (
+                          <li key={item}>
+                            <Link href={`/category/${item.toLowerCase()}`} className="hover:text-black hover:underline transition-colors block">
+                              {item}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : (
+                     <div className="w-48">
+                      <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">Top Marken</h3>
+                      <ul className="space-y-3 text-sm text-gray-600">
+                        {MENU_DATA[activeMenu]?.Brands?.map((item) => (
+                          <li key={item}>
+                            <Link href={`/brand/${item.toLowerCase()}`} className="hover:text-black hover:underline transition-colors block">
+                              {item}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Column 2: Accessories (Only for Herren/Damen) */}
+                  {activeMenu !== 'Marken' && (
+                    <div className="w-48">
+                      <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">Accessories</h3>
+                      <ul className="space-y-3 text-sm text-gray-600">
+                        {MENU_DATA[activeMenu]?.Accessories?.map((item) => (
+                          <li key={item}>
+                            <Link href={`/category/${item.toLowerCase()}`} className="hover:text-black hover:underline transition-colors block">
+                              {item}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Column 3: Highlights (Only for Herren/Damen) */}
+                  {activeMenu !== 'Marken' && (
+                    <div className="w-48">
+                      <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">Highlights</h3>
+                      <ul className="space-y-3 text-sm text-gray-600">
+                        {MENU_DATA[activeMenu]?.Highlights?.map((item) => (
+                          <li key={item}>
+                            <Link href="#" className="hover:text-black hover:underline transition-colors block">
+                              {item}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Column 4: Images */}
+                  <div className="flex-1 grid grid-cols-3 gap-6">
+                    {MENU_DATA[activeMenu]?.Images?.map((img, idx) => (
+                      <div key={idx} className="group cursor-pointer">
+                        <div className="aspect-[3/4] overflow-hidden mb-3 bg-gray-100">
+                          <img 
+                            src={img.src} 
+                            alt={img.title}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        </div>
+                        <h4 className="font-bold text-xs uppercase tracking-widest group-hover:underline">{img.title}</h4>
+                      </div>
+                    ))}
+                  </div>
+
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+    </>
   );
 }
