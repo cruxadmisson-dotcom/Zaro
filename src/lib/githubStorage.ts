@@ -35,7 +35,18 @@ export async function saveFileToGitHub(filePath: string, content: string | Buffe
     throw new Error('GITHUB_TOKEN not found in environment variables.');
   }
 
-  const octokit = new Octokit({ auth: GITHUB_TOKEN });
+  const octokit = new Octokit({ 
+    auth: GITHUB_TOKEN,
+    request: {
+      fetch: (url: string, options: any) => {
+        return fetch(url, {
+          ...options,
+          cache: 'no-store',
+          next: { revalidate: 0 }
+        });
+      },
+    },
+  });
 
   try {
     // Check if file exists to get SHA
