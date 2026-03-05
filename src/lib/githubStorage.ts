@@ -11,7 +11,19 @@ const IMAGES_DIR = 'public/images';
 
 export async function getProductsFromGitHub() {
   if (!GITHUB_TOKEN) return null;
-  const octokit = new Octokit({ auth: GITHUB_TOKEN });
+  
+  const octokit = new Octokit({ 
+    auth: GITHUB_TOKEN,
+    request: {
+      fetch: (url: string, options: any) => {
+        return fetch(url, {
+          ...options,
+          cache: 'no-store',
+          next: { revalidate: 0 }
+        });
+      },
+    },
+  });
   
   try {
     const { data } = await octokit.repos.getContent({
@@ -24,8 +36,13 @@ export async function getProductsFromGitHub() {
       const decoded = Buffer.from(data.content, 'base64').toString('utf-8');
       return JSON.parse(decoded);
     }
-  } catch (error) {
+  } catch (error: any) {
+    if (error.status === 404) {
+      console.warn('Products file not found on GitHub, returning empty list.');
+      return [];
+    }
     console.error('Failed to fetch from GitHub:', error);
+    throw error; // Let the caller handle the error (or fail loudly)
   }
   return null;
 }
@@ -60,8 +77,13 @@ export async function saveFileToGitHub(filePath: string, content: string | Buffe
       if (!Array.isArray(data) && 'sha' in data) {
         sha = data.sha;
       }
-    } catch (error) {
-      // File doesn't exist, create new
+    } catch (error: any) {
+      // If error is NOT 404, throw it
+      if (error.status !== 404) {
+        console.error('Error fetching file SHA:', error);
+        throw error;
+      }
+      // If 404, it's a new file, so no SHA needed.
     }
 
     // Convert content to Base64

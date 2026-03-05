@@ -48,11 +48,14 @@ export default function AdminPage() {
   const fetchProducts = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/admin/products');
+      // Add timestamp to prevent browser caching
+      const res = await fetch(`/api/admin/products?t=${Date.now()}`);
+      if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
       setProducts(data);
     } catch (error) {
       console.error('Failed to fetch products', error);
+      alert('Fehler beim Laden der Produkte. Bitte Seite neu laden.');
     } finally {
       setIsLoading(false);
     }
@@ -246,11 +249,16 @@ export default function AdminPage() {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-6 max-w-5xl">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Zaro Fashion Admin</h1>
-          <button onClick={() => { resetForm(); setActiveTab('create'); }} className="bg-black text-white px-4 py-2 rounded-lg flex gap-2">
-            <Plus /> Neues Produkt
-          </button>
-        </div>
+            <div className="flex items-center gap-4">
+              <h1 className="text-3xl font-bold">Zaro Fashion Admin</h1>
+              <button onClick={fetchProducts} className="bg-gray-200 p-2 rounded-full hover:bg-gray-300" title="Aktualisieren">
+                🔄
+              </button>
+            </div>
+            <button onClick={() => { resetForm(); setActiveTab('create'); }} className="bg-black text-white px-4 py-2 rounded-lg flex gap-2">
+              <Plus /> Neues Produkt
+            </button>
+          </div>
         
         <div className="bg-white p-8 rounded-xl shadow-lg min-h-[500px]">
           <div className="flex gap-4 mb-8 border-b pb-4">
