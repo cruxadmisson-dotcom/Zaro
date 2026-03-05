@@ -1,0 +1,130 @@
+[
+  {
+    "id": "1",
+    "name": "Vintage Nike Spellout Sweatshirt",
+    "description": "Original 90er Jahre Nike Sweatshirt in Navy Blue. Gesticktes Logo auf der Brust. Sehr weicher Stoff und perfekter Boxy Fit.",
+    "price": 89.99,
+    "currency": "EUR",
+    "category": "sweatshirts",
+    "image": "https://images.unsplash.com/photo-1556821840-3a63f95609a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1556821840-3a63f95609a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+    ],
+    "checkoutUrl": "https://buy.stripe.com/test_12345",
+    "condition": "9/10 - Sehr guter Vintage Zustand",
+    "brand": "Nike",
+    "sizes": [
+      "L"
+    ],
+    "colors": [
+      "Navy"
+    ]
+  },
+  {
+    "id": "2",
+    "name": "Carhartt Detroit Jacket Beige",
+    "description": "Klassische Carhartt Arbeitsjacke in Beige. Leichte Gebrauchsspuren am Ärmel, die den Charakter unterstreichen. Innen gefüttert.",
+    "price": 149.99,
+    "currency": "EUR",
+    "category": "jackets",
+    "image": "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1591047139130-136f7aa5973c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+    ],
+    "checkoutUrl": "https://buy.stripe.com/test_67890",
+    "condition": "8/10 - Leichte Patina",
+    "brand": "Carhartt",
+    "sizes": [
+      "XL"
+    ],
+    "colors": [
+      "Beige"
+    ]
+  },
+  {
+    "id": "3",
+    "name": "Classic White Tee",
+    "description": "Ein hochwertiges weißes T-Shirt aus 100% Bio-Baumwolle. Perfekt für jeden Anlass.",
+    "price": 29.99,
+    "currency": "EUR",
+    "category": "t-shirts",
+    "image": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+    ],
+    "checkoutUrl": "https://buy.stripe.com/test_abcde",
+    "condition": "Neu",
+    "brand": "Zaro Fashion",
+    "sizes": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "colors": [
+      "White"
+    ]
+  },
+  {
+    "name": "Parajumper Nolan",
+    "description": "Nolan gfood jacked",
+    "price": 37.99,
+    "category": "t-shirts",
+    "image": "/images/100155723913000_0_1704286931723.webp",
+    "images": [],
+    "checkoutUrl": "",
+    "sizes": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "colors": [
+      "Navy",
+      "Beige",
+      "Black"
+    ],
+    "condition": "Neu",
+    "brand": "Zaro Fashion",
+    "id": "1772653711416",
+    "colorVariants": [
+      {
+        "color": "Black",
+        "images": [
+          "/images/100155723913000_0_1704286931723.webp",
+          "/images/100155723913000_4_1704287276560.webp",
+          "/images/100155723913000_3_1704287382611.webp",
+          "/images/100155723913000_2_1704287396407.webp",
+          "/images/100155723913000_1_1704287309760.webp"
+        ]
+      },
+      {
+        "color": "Beige",
+        "images": [
+          "/images/100155723912000_0_1768953600000.webp",
+          "/images/100155723912000_2_1768521600000.webp",
+          "/images/100155723912000_1_1768521600000.webp",
+          "/images/100155723912000_4_1768521600000.webp",
+          "/images/100155723912000_5_1768521600000.webp"
+        ]
+      },
+      {
+        "color": "Navy",
+        "images": [
+          "/images/100155723917002_0_1768176000000.webp",
+          "/images/100155723917002_5_1767916800000.webp",
+          "/images/100155723917002_4_1767916800000.webp",
+          "/images/100155723917002_3_1767916800000.webp",
+          "/images/100155723917002_2_1767916800000.webp",
+          "/images/100155723917002_1_1767916800000.webp"
+        ]
+      }
+    ]
+  }
+]
