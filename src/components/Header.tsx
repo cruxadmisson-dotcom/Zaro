@@ -74,6 +74,7 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
+  const [isMobileLangOpen, setIsMobileLangOpen] = useState(false); // New state for mobile language dropdown
   const [searchQuery, setSearchQuery] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
   const [searchResults, setSearchResults] = useState<Product[]>([]);
@@ -112,6 +113,16 @@ export default function Header() {
       setIsSearchOpen(false);
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
+  };
+
+  // Translation Helper for Menu Data
+  const getTranslatedMenu = () => {
+    // Deep copy first to avoid mutating original
+    const data = JSON.parse(JSON.stringify(MENU_DATA));
+    
+    // Translate headers if possible (this is a simplified approach)
+    // In a real app, you might restructure MENU_DATA to be fully dynamic
+    return data;
   };
 
   return (
@@ -233,12 +244,12 @@ export default function Header() {
                     {/* ... (Existing Mega Menu Logic) ... */}
                     {activeMenu !== 'Marken' ? (
                         <div className="w-48">
-                          <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">Kleidung</h3>
+                          <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">{t('nav.clothing')}</h3>
                           <ul className="space-y-3 text-sm text-gray-600">
                             {MENU_DATA[activeMenu]?.Kleidung?.map((item) => (
                               <li key={item}>
                                 <Link href={`/category/${item.toLowerCase()}`} className="hover:text-black hover:underline transition-colors block">
-                                  {item}
+                                  {t(`categories.${item.toLowerCase().replace(/ & /g, '').replace(/ /g, '')}`) !== `categories.${item.toLowerCase().replace(/ & /g, '').replace(/ /g, '')}` ? t(`categories.${item.toLowerCase().replace(/ & /g, '').replace(/ /g, '')}`) : item}
                                 </Link>
                               </li>
                             ))}
@@ -246,7 +257,7 @@ export default function Header() {
                         </div>
                       ) : (
                          <div className="w-48">
-                          <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">Top Marken</h3>
+                          <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">{t('nav.brands')}</h3>
                           <ul className="space-y-3 text-sm text-gray-600">
                             {MENU_DATA[activeMenu]?.Brands?.map((item) => (
                               <li key={item}>
@@ -261,12 +272,12 @@ export default function Header() {
 
                       {activeMenu !== 'Marken' && (
                         <div className="w-48">
-                          <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">Accessories</h3>
+                          <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">{t('nav.accessories')}</h3>
                           <ul className="space-y-3 text-sm text-gray-600">
                             {MENU_DATA[activeMenu]?.Accessories?.map((item) => (
                               <li key={item}>
                                 <Link href={`/category/${item.toLowerCase()}`} className="hover:text-black hover:underline transition-colors block">
-                                  {item}
+                                  {t(`categories.${item.toLowerCase().replace(/ & /g, '').replace(/ /g, '')}`) !== `categories.${item.toLowerCase().replace(/ & /g, '').replace(/ /g, '')}` ? t(`categories.${item.toLowerCase().replace(/ & /g, '').replace(/ /g, '')}`) : item}
                                 </Link>
                               </li>
                             ))}
@@ -276,7 +287,7 @@ export default function Header() {
 
                       {activeMenu !== 'Marken' && (
                         <div className="w-48">
-                          <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">Highlights</h3>
+                          <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">{t('nav.highlights')}</h3>
                           <ul className="space-y-3 text-sm text-gray-600">
                             {MENU_DATA[activeMenu]?.Highlights?.map((item) => (
                               <li key={item}>
@@ -332,7 +343,7 @@ export default function Header() {
               className="fixed top-0 left-0 bottom-0 w-[80%] max-w-sm bg-white z-[70] shadow-2xl flex flex-col"
             >
               <div className="p-6 border-b flex justify-between items-center">
-                 <span className="font-black text-xl uppercase">Menü</span>
+                 <span className="font-black text-xl uppercase">{t('nav.menu')}</span>
                  <button onClick={() => setIsMobileMenuOpen(false)}>
                    <X className="w-6 h-6" />
                  </button>
@@ -344,7 +355,7 @@ export default function Header() {
                       onClick={() => setActiveMenu(activeMenu === category ? null : category)}
                       className="flex justify-between items-center w-full text-left font-bold text-lg uppercase py-2"
                     >
-                      {category}
+                      {t(`nav.${category === 'Herren' ? 'men' : category === 'Damen' ? 'women' : 'brands'}`)}
                       <ChevronRight className={`w-5 h-5 transition-transform ${activeMenu === category ? 'rotate-90' : ''}`} />
                     </button>
                     
@@ -367,13 +378,13 @@ export default function Header() {
                             ) : (
                               <>
                                 <div>
-                                  <p className="font-bold text-xs uppercase text-gray-400 mb-2">Kleidung</p>
+                                  <p className="font-bold text-xs uppercase text-gray-400 mb-2">{t('nav.clothing')}</p>
                                   {MENU_DATA[category]?.Kleidung?.slice(0, 8).map(item => (
                                      <Link key={item} href={`/category/${item.toLowerCase()}`} className="block text-gray-600 py-1" onClick={() => setIsMobileMenuOpen(false)}>
-                                      {item}
+                                      {t(`categories.${item.toLowerCase().replace(/ & /g, '').replace(/ /g, '')}`) !== `categories.${item.toLowerCase().replace(/ & /g, '').replace(/ /g, '')}` ? t(`categories.${item.toLowerCase().replace(/ & /g, '').replace(/ /g, '')}`) : item}
                                     </Link>
                                   ))}
-                                   <Link href={`/category/all`} className="block text-black font-bold py-1 underline">Alles anzeigen</Link>
+                                   <Link href={`/category/all`} className="block text-black font-bold py-1 underline">{t('categories.all')}</Link>
                                 </div>
                               </>
                             )}
@@ -385,8 +396,41 @@ export default function Header() {
                 ))}
               </div>
               <div className="p-6 border-t bg-gray-50">
-                 <button className="flex items-center gap-2 mb-4 font-bold" onClick={() => {toggleLanguage('de'); setIsMobileMenuOpen(false);}}>🇩🇪 Deutsch</button>
-                 <button className="flex items-center gap-2 font-bold" onClick={() => {toggleLanguage('en'); setIsMobileMenuOpen(false);}}>🇺🇸 English</button>
+                 <div className="relative">
+                   <button 
+                     onClick={() => setIsMobileLangOpen(!isMobileLangOpen)} 
+                     className="w-full bg-black text-white py-3 px-4 flex justify-between items-center font-bold uppercase tracking-widest rounded"
+                   >
+                     <span className="flex items-center gap-2">
+                       {language === 'de' ? '🇩🇪 Deutsch' : '🇺🇸 English'}
+                     </span>
+                     <ChevronRight className={`transition-transform duration-300 ${isMobileLangOpen ? '-rotate-90' : 'rotate-90'}`} />
+                   </button>
+                   
+                   <AnimatePresence>
+                      {isMobileLangOpen && (
+                        <motion.div 
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="overflow-hidden mt-1 bg-black border border-gray-800 rounded shadow-lg"
+                        >
+                          <button 
+                            onClick={() => { toggleLanguage('de'); setIsMobileLangOpen(false); }}
+                            className={`w-full text-left px-4 py-3 border-b border-gray-800 flex items-center gap-2 font-bold text-white hover:bg-gray-900`}
+                          >
+                            <span className="text-xl">🇩🇪</span> Deutsch
+                          </button>
+                          <button 
+                            onClick={() => { toggleLanguage('en'); setIsMobileLangOpen(false); }}
+                            className={`w-full text-left px-4 py-3 flex items-center gap-2 font-bold text-white hover:bg-gray-900`}
+                          >
+                            <span className="text-xl">🇺🇸</span> English
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                 </div>
               </div>
             </motion.div>
           </>

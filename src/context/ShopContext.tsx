@@ -27,7 +27,18 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   const EXCHANGE_RATE = 1.10; // 1 EUR = 1.10 USD
 
   useEffect(() => {
-    // 1. IP-Check beim Start
+    // 1. Check LocalStorage first
+    const savedLang = localStorage.getItem('shopLanguage') as Language;
+    const savedCurrency = localStorage.getItem('shopCurrency') as Currency;
+
+    if (savedLang && savedCurrency) {
+      setLanguage(savedLang);
+      setCurrency(savedCurrency);
+      setIsLoading(false);
+      return;
+    }
+
+    // 2. IP-Check if no saved preference
     const checkLocation = async () => {
       try {
         const res = await fetch('https://ipapi.co/json/');
@@ -54,9 +65,12 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
 
   const toggleLanguage = (lang: Language) => {
     setLanguage(lang);
-    // Wenn man manuell auf Englisch stellt, auch Dollar nutzen (und umgekehrt)
-    if (lang === 'en') setCurrency('USD');
-    else setCurrency('EUR');
+    const newCurrency = lang === 'en' ? 'USD' : 'EUR';
+    setCurrency(newCurrency);
+    
+    // Persist to LocalStorage
+    localStorage.setItem('shopLanguage', lang);
+    localStorage.setItem('shopCurrency', newCurrency);
   };
 
   // Hilfsfunktion für Übersetzungen (z.B. t('nav.home'))
