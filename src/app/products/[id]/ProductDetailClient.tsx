@@ -33,22 +33,19 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
 
   // Determine images to show based on selected color
   const getDisplayImages = () => {
-    let images: string[] = [];
-    
-    // 1. Add Variant Images (if color selected)
+    // 1. If color selected and has specific images, show ONLY those
     if (selectedColor && product.colorVariants) {
       const variant = product.colorVariants.find(v => v.color === selectedColor);
-      if (variant && variant.images.length > 0) {
-        images = [...variant.images];
+      if (variant && variant.images.length > 0 && variant.images.some(img => img && img.trim() !== '')) {
+        return variant.images.filter(img => img && img.trim() !== '');
       }
     }
 
-    // 2. Add Main Images (General) - Append them to the list
+    // 2. Fallback: Show standard images
+    let images: string[] = [];
     if (product.images && product.images.length > 0) {
-        // Filter out duplicates if any
-        const newImages = product.images.filter(img => !images.includes(img));
-        images = [...images, ...newImages];
-    } else if (product.image && !images.includes(product.image)) {
+        images = [...product.images];
+    } else if (product.image) {
         images.push(product.image);
     }
 
@@ -57,7 +54,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         return ['/placeholder.jpg'];
     }
 
-    return images;
+    return images.filter(img => img && img.trim() !== '');
   };
 
   const displayImages = getDisplayImages();

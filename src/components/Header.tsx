@@ -416,44 +416,59 @@ export default function Header() {
               </div>
 
               {/* Search Input */}
-              <div className="container mx-auto px-6 mt-16">
-                <div className="flex justify-center mb-12">
-                  <div className="relative w-full max-w-3xl">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
+              <div className="container mx-auto px-6 mt-8 mb-8">
+                <div className="flex justify-center">
+                  <div className="relative w-full max-w-xl group">
+                    <Search className="absolute left-0 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-black transition-colors" />
                     <input 
                       type="text" 
                       placeholder={t('search.placeholder')}
-                      className="w-full text-2xl font-light outline-none border border-black py-4 pl-14 pr-4"
+                      className="w-full text-lg bg-transparent border-b border-gray-200 focus:border-black outline-none py-3 pl-10 pr-4 transition-colors placeholder-gray-400"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onKeyDown={handleSearch}
                       autoFocus
                     />
-                    <button className="absolute right-0 top-0 h-full bg-black text-white px-6">
-                      <Search className="w-6 h-6" />
-                    </button>
                   </div>
                 </div>
+              </div>
 
-                {/* Live Results Grid */}
-                <div className="h-[calc(100vh-250px)] overflow-y-auto pb-20">
-                  {searchQuery && searchResults.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                      {searchResults.map(product => (
-                        <div key={product.id} onClick={() => { window.location.href = `/products/${product.id}`; setIsSearchOpen(false); }}>
+              {/* Live Results Grid */}
+              <div className="container mx-auto px-6 h-[calc(100vh-200px)] overflow-y-auto pb-20 scrollbar-hide">
+                {searchQuery && searchResults.length > 0 ? (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-8">
+                    {searchResults.map(product => (
+                       <div key={product.id} onClick={() => { setIsSearchOpen(false); }}>
                           <ProductCard product={product} />
-                        </div>
-                      ))}
+                       </div>
+                    ))}
+                  </div>
+                ) : searchQuery && searchResults.length === 0 ? (
+                  <div className="space-y-12">
+                    <p className="text-center text-gray-500 text-sm uppercase tracking-widest">Keine Treffer gefunden.</p>
+                    
+                    {/* Recommendations Fallback */}
+                    <div>
+                      <h3 className="text-center font-bold text-xl mb-8">Das könnte dir auch gefallen</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-8">
+                        {[...products]
+                          .sort(() => 0.5 - Math.random())
+                          .slice(0, 4)
+                          .map(product => (
+                            <div key={product.id} onClick={() => { setIsSearchOpen(false); }}>
+                              <ProductCard product={product} />
+                            </div>
+                          ))
+                        }
+                      </div>
                     </div>
-                  ) : searchQuery && searchResults.length === 0 ? (
-                    <p className="text-center text-gray-400 mt-12 text-lg">Keine Ergebnisse gefunden.</p>
-                  ) : (
-                    // Default State (Empty)
-                    <div className="text-center text-gray-400 mt-12 text-sm uppercase tracking-widest">
-                      Tippe, um Produkte zu suchen...
-                    </div>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  // Default State (Empty)
+                  <div className="text-center text-gray-400 mt-12 text-sm uppercase tracking-widest">
+                    Tippe, um Produkte zu suchen...
+                  </div>
+                )}
               </div>
             </motion.div>
           )}

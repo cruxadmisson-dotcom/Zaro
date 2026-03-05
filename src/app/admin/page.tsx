@@ -70,6 +70,7 @@ export default function AdminPage() {
       images: product.images.length > 0 ? product.images : [''],
       colors: product.colors || [],
       colorVariants: product.colorVariants || [],
+      brand: product.brand || '', // Ensure brand is never undefined
     });
     setEditingId(product.id);
     setActiveTab('edit');
@@ -78,9 +79,16 @@ export default function AdminPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Wirklich löschen?')) return;
     try {
-      await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
-      fetchProducts();
+      const res = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        // Optimistic update
+        setProducts(products.filter(p => p.id !== id));
+        alert('Gelöscht!');
+      } else {
+        alert('Fehler beim Löschen (Server Error)');
+      }
     } catch (error) {
+      console.error(error);
       alert('Fehler beim Löschen');
     }
   };
@@ -269,11 +277,14 @@ export default function AdminPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-2">
                     <button onClick={() => handleEdit(p)} className="p-2 hover:bg-blue-50 text-blue-600 rounded">
                       <Edit size={20} />
                     </button>
-                    <button onClick={() => handleDelete(p.id)} className="p-2 hover:bg-red-50 text-red-600 rounded">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleDelete(p.id); }} 
+                      className="p-2 hover:bg-red-50 text-red-600 rounded"
+                    >
                       <Trash size={20} />
                     </button>
                   </div>
@@ -311,7 +322,23 @@ export default function AdminPage() {
 
                 <div>
                   <label className="block text-sm font-bold mb-2">Marke</label>
-                  <input name="brand" value={formData.brand} onChange={handleChange} className="w-full border p-3 rounded-lg" placeholder="z.B. Parajumpers" />
+                  <input 
+                    name="brand" 
+                    value={formData.brand} 
+                    onChange={handleChange} 
+                    list="brands-list"
+                    className="w-full border p-3 rounded-lg" 
+                    placeholder="z.B. Parajumpers" 
+                  />
+                  <datalist id="brands-list">
+                    {Array.from(new Set(products.map(p => p.brand).filter(Boolean))).map(brand => (
+                      <option key={brand} value={brand} />
+                    ))}
+                    <option value="Zaro Fashion" />
+                    <option value="Parajumpers" />
+                    <option value="Nike" />
+                    <option value="Adidas" />
+                  </datalist>
                 </div>
 
                 {/* Main Images (Fallback) */}
