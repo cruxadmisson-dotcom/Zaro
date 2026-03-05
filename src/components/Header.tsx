@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import { useShop } from '@/context/ShopContext';
+import { useRouter } from 'next/navigation';
 
 // Menu Data Structure
 interface MenuCategory {
@@ -69,7 +70,16 @@ export default function Header() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { language, toggleLanguage, t } = useShop();
+  const router = useRouter();
+
+  const handleSearch = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      setIsSearchOpen(false);
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   return (
     <header 
@@ -157,14 +167,17 @@ export default function Header() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute top-0 left-0 right-0 h-24 bg-white z-50 flex items-center border-b border-gray-100"
+            className="absolute top-0 left-0 right-0 h-24 bg-white z-50 flex items-center border-b border-gray-100 shadow-sm"
           >
             <div className="container mx-auto px-6 flex items-center gap-4">
               <Search className="w-6 h-6 text-gray-400" />
               <input 
                 type="text" 
                 placeholder={t('search.placeholder')}
-                className="flex-1 text-2xl font-light outline-none placeholder-gray-300"
+                className="flex-1 text-xl font-light outline-none placeholder-gray-300"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearch}
                 autoFocus
               />
               <button 

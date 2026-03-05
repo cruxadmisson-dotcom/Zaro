@@ -309,6 +309,11 @@ export default function AdminPage() {
                   </div>
                 </div>
 
+                <div>
+                  <label className="block text-sm font-bold mb-2">Marke</label>
+                  <input name="brand" value={formData.brand} onChange={handleChange} className="w-full border p-3 rounded-lg" placeholder="z.B. Parajumpers" />
+                </div>
+
                 {/* Main Images (Fallback) */}
                 <div className="p-4 border rounded-lg bg-gray-50">
                   <label className="block text-sm font-bold mb-2">Standard Bilder (Wenn keine Farbe gewählt)</label>
