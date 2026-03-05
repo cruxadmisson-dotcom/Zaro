@@ -36,11 +36,24 @@ export async function getProducts(): Promise<Product[]> {
   }
 }
 
+import { saveProductsGitHub } from './githubStorage';
+
 export async function saveProducts(products: Product[]): Promise<void> {
+  // If we are on Vercel (process.env.VERCEL) AND have a GitHub Token, use GitHub API
+  if (process.env.GITHUB_TOKEN) {
+    try {
+      console.log('Saving products to GitHub...');
+      await saveProductsGitHub(products);
+      return;
+    } catch (error) {
+      console.error('GitHub save failed, falling back to local (which will fail on Vercel readonly fs)', error);
+    }
+  }
+
   try {
     await fs.writeFile(dataFilePath, JSON.stringify(products, null, 2), 'utf-8');
   } catch (error) {
-    console.error('Error saving products:', error);
+    console.error('Error saving products locally:', error);
     throw error;
   }
 }
