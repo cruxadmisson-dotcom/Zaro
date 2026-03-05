@@ -1,33 +1,215 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag } from 'lucide-react';
+import { useState } from 'react';
+
+// Menu Data Structure
+interface MenuCategory {
+  Kleidung?: string[];
+  Accessories?: string[];
+  Highlights?: string[];
+  Brands?: string[];
+  Images: { src: string; title: string }[];
+}
+
+const MENU_DATA: Record<string, MenuCategory> = {
+  Herren: {
+    Kleidung: [
+      'Jacken', 'Daunenjacken', 'Hybrid', 'Bomberjacken', 'Knitwear', 
+      'Polos & T-Shirts', 'Fleeces', 'Hosen', 'Overshirts', 'Westen', 
+      'Lederjacken', 'Regenjacken', 'Parka-Jacke', 'Ski', 'Alles anzeigen'
+    ],
+    Accessories: [
+      'Taschen & Rucksäcke', 'Mütze', 'Handschuhe', 'Schals', 'Alles anzeigen'
+    ],
+    Highlights: [
+      'A Family Portrait', 'Cold Comforts', 'Urban Tech', 'Ready to Wear', 'Icons'
+    ],
+    Images: [
+      { src: '/images/100155723917002_0_1768176000000.webp', title: 'A FAMILY PORTRAIT' },
+      { src: '/images/100155723912000_0_1768953600000.webp', title: 'COLD COMFORTS' },
+      { src: '/images/100155723913000_0_1704286931723.webp', title: 'VOGUE KOREA X PARAJUMPERS' }
+    ]
+  },
+  Damen: {
+    Kleidung: [
+      'Jacken', 'Daunenjacken', 'Mäntel', 'Westen', 'Kleider', 
+      'Röcke', 'Hosen', 'Strick', 'Blusen', 'T-Shirts', 
+      'Sportswear', 'Ski', 'Alles anzeigen'
+    ],
+    Accessories: [
+      'Handtaschen', 'Schals', 'Mützen', 'Gürtel', 'Alles anzeigen'
+    ],
+    Highlights: [
+      'New Arrivals', 'Best Sellers', 'Sustainable', 'Gift Guide'
+    ],
+    Images: [
+      { src: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=600&auto=format&fit=crop', title: 'NEW SEASON' },
+      { src: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=600&auto=format&fit=crop', title: 'EDITORIAL' },
+      { src: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&auto=format&fit=crop', title: 'SUMMER VIBES' }
+    ]
+  },
+  Marken: {
+    Brands: [
+      'Parajumpers', 'Stone Island', 'Moncler', 'Canada Goose', 
+      'Woolrich', 'Nike', 'Adidas', 'Carhartt', 'Ralph Lauren', 
+      'The North Face', 'Patagonia', 'Alles anzeigen'
+    ],
+    Images: [
+       { src: 'https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=600&auto=format&fit=crop', title: 'NIKE' },
+       { src: 'https://images.unsplash.com/photo-1617611413968-65efd64b395d?q=80&w=600&auto=format&fit=crop', title: 'ADIDAS' }
+    ]
+  }
+};
 
 export default function Header() {
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+
   return (
-    <motion.header
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100"
+    <header 
+      className="fixed top-0 left-0 right-0 z-50 bg-white text-black border-b border-gray-100"
+      onMouseLeave={() => setActiveMenu(null)}
     >
-      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold tracking-tighter">
-          Zaro<span className="text-blue-600">Fashion</span>
+      <div className="container mx-auto px-6 h-20 flex justify-between items-center">
+        {/* Logo */}
+        <Link href="/" className="text-3xl font-black tracking-tighter uppercase">
+          ZARO<span className="font-light">FASHION</span>
         </Link>
         
-        <nav className="hidden md:flex space-x-8 text-sm font-medium text-gray-600">
-          <Link href="/" className="hover:text-black transition-colors">Startseite</Link>
-          <Link href="#products" className="hover:text-black transition-colors">Kollektion</Link>
-          <Link href="#about" className="hover:text-black transition-colors">Über uns</Link>
+        {/* Main Nav */}
+        <nav className="hidden md:flex h-full items-center space-x-12 text-sm font-bold uppercase tracking-wider">
+          {['Herren', 'Damen', 'Marken'].map((item) => (
+            <div 
+              key={item}
+              className="h-full flex items-center cursor-pointer relative group"
+              onMouseEnter={() => setActiveMenu(item)}
+            >
+              <span className={`transition-colors ${activeMenu === item ? 'text-black' : 'text-gray-600 hover:text-black'}`}>
+                {item}
+              </span>
+              {activeMenu === item && (
+                <motion.div 
+                  layoutId="underline"
+                  className="absolute bottom-0 left-0 right-0 h-[2px] bg-black" 
+                />
+              )}
+            </div>
+          ))}
         </nav>
 
-        <div className="flex items-center space-x-4">
-          <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <ShoppingBag className="w-5 h-5 text-gray-700" />
+        {/* Icons */}
+        <div className="flex items-center space-x-6 text-sm font-medium">
+          <div className="hidden lg:flex items-center gap-4 text-gray-500">
+             <span className="cursor-pointer hover:text-black">Suche</span>
+             <span>|</span>
+             <span className="cursor-pointer hover:text-black">Deu</span>
+          </div>
+          <button className="p-2 hover:bg-gray-100 rounded-full transition-colors relative">
+            <ShoppingBag className="w-5 h-5" />
+            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
         </div>
       </div>
-    </motion.header>
+
+      {/* Mega Menu Dropdown */}
+      <AnimatePresence>
+        {activeMenu && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-full left-0 right-0 bg-white border-b border-gray-100 shadow-xl py-12"
+            onMouseEnter={() => setActiveMenu(activeMenu)}
+            onMouseLeave={() => setActiveMenu(null)}
+          >
+            <div className="container mx-auto px-6">
+              <div className="flex gap-16">
+                
+                {/* Column 1: Kleidung (or Brands for Marken) */}
+                {activeMenu !== 'Marken' ? (
+                  <div className="w-48">
+                    <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">Kleidung</h3>
+                    <ul className="space-y-3 text-sm text-gray-600">
+                      {MENU_DATA[activeMenu]?.Kleidung?.map((item) => (
+                        <li key={item}>
+                          <Link href={`/category/${item.toLowerCase()}`} className="hover:text-black hover:underline transition-colors block">
+                            {item}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                   <div className="w-48">
+                    <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">Top Marken</h3>
+                    <ul className="space-y-3 text-sm text-gray-600">
+                      {MENU_DATA[activeMenu]?.Brands?.map((item) => (
+                        <li key={item}>
+                          <Link href={`/brand/${item.toLowerCase()}`} className="hover:text-black hover:underline transition-colors block">
+                            {item}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Column 2: Accessories (Only for Herren/Damen) */}
+                {activeMenu !== 'Marken' && (
+                  <div className="w-48">
+                    <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">Accessories</h3>
+                    <ul className="space-y-3 text-sm text-gray-600">
+                      {MENU_DATA[activeMenu]?.Accessories?.map((item) => (
+                        <li key={item}>
+                          <Link href={`/category/${item.toLowerCase()}`} className="hover:text-black hover:underline transition-colors block">
+                            {item}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Column 3: Highlights (Only for Herren/Damen) */}
+                {activeMenu !== 'Marken' && (
+                  <div className="w-48">
+                    <h3 className="font-bold text-xs uppercase tracking-widest mb-6 border-b pb-2">Highlights</h3>
+                    <ul className="space-y-3 text-sm text-gray-600">
+                      {MENU_DATA[activeMenu]?.Highlights?.map((item) => (
+                        <li key={item}>
+                          <Link href="#" className="hover:text-black hover:underline transition-colors block">
+                            {item}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Column 4: Images */}
+                <div className="flex-1 grid grid-cols-3 gap-6">
+                  {MENU_DATA[activeMenu]?.Images?.map((img, idx) => (
+                    <div key={idx} className="group cursor-pointer">
+                      <div className="aspect-[3/4] overflow-hidden mb-3 bg-gray-100">
+                        <img 
+                          src={img.src} 
+                          alt={img.title}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      </div>
+                      <h4 className="font-bold text-xs uppercase tracking-widest group-hover:underline">{img.title}</h4>
+                    </div>
+                  ))}
+                </div>
+
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
   );
 }
