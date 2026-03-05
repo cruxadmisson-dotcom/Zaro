@@ -2,12 +2,15 @@
 
 import { motion } from 'framer-motion';
 import { Product } from '@/lib/products';
+import { useShop } from '@/context/ShopContext';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const { formatPrice } = useShop();
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -33,7 +36,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           {product.name}
         </h3>
         <div className="text-sm font-bold text-gray-900">
-          {product.price.toFixed(2)} {product.currency}
+          {formatPrice(product.price)}
         </div>
         <div className="text-xs text-gray-400 mt-1 uppercase">
            {product.sizes.join(', ')} • {product.condition.split(' ')[0]}

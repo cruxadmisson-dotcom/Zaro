@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import { Product } from '@/lib/products';
+import { useShop } from '@/context/ShopContext';
 
 const STANDARD_COLORS = [
   { name: 'Black', hex: '#000000' },
@@ -19,6 +20,7 @@ const STANDARD_COLORS = [
 ];
 
 export default function ProductDetailClient({ product, relatedProducts }: { product: Product, relatedProducts: Product[] }) {
+  const { t, formatPrice } = useShop();
   const [activeImage, setActiveImage] = useState(0);
   const [openAccordion, setOpenAccordion] = useState<string | null>('description');
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -82,12 +84,12 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
   const handleCheckout = (e: React.MouseEvent) => {
     if (!selectedSize && product.sizes && product.sizes.length > 1) {
       e.preventDefault();
-      alert('Bitte wähle zuerst eine Größe aus.');
+      alert(t('cart.selectSize'));
       return;
     }
     if (availableColors.length > 0 && !selectedColor) {
       e.preventDefault();
-      alert('Bitte wähle zuerst eine Farbe aus.');
+      alert(t('cart.selectColor'));
       return;
     }
   };
@@ -97,7 +99,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
       <div className="container mx-auto px-4 md:px-8 pt-12 md:pt-24">
         {/* Breadcrumb */}
         <div className="text-xs text-gray-400 mb-8 uppercase tracking-widest">
-          <Link href="/" className="hover:text-black transition-colors">Home</Link> / 
+          <Link href="/" className="hover:text-black transition-colors">{t('nav.home')}</Link> / 
           <span className="mx-2">{product.category}</span> / 
           <span className="text-gray-900 ml-2">{product.name}</span>
         </div>
@@ -139,17 +141,17 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
               {product.name}
             </h1>
             <div className="text-2xl font-medium text-gray-900 mb-8">
-              {product.price.toFixed(2)} {product.currency}
+              {formatPrice(product.price)}
             </div>
 
             {/* Size & Condition */}
             <div className="grid grid-cols-2 gap-4 mb-8 text-sm">
               <div className="border border-gray-200 p-4 text-center">
-                <span className="block text-gray-400 text-xs uppercase mb-1">Zustand</span>
+                <span className="block text-gray-400 text-xs uppercase mb-1">{t('product.condition')}</span>
                 <span className="font-bold">{product.condition}</span>
               </div>
               <div className="border border-gray-200 p-4 text-center">
-                <span className="block text-gray-400 text-xs uppercase mb-1">Marke</span>
+                <span className="block text-gray-400 text-xs uppercase mb-1">{t('product.brand')}</span>
                 <span className="font-bold">{product.brand}</span>
               </div>
             </div>
@@ -180,8 +182,8 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
             {product.sizes && product.sizes.length > 0 && (
               <div className="mb-8">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-bold uppercase tracking-widest">Größe Wählen</span>
-                  <span className="text-xs text-gray-400 underline cursor-pointer">Größentabelle</span>
+                  <span className="text-sm font-bold uppercase tracking-widest">{t('product.size')}</span>
+                  <span className="text-xs text-gray-400 underline cursor-pointer">{t('product.sizeGuide')}</span>
                 </div>
                 <div className="grid grid-cols-6 gap-2">
                   {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((size) => {
@@ -227,10 +229,10 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                   : 'bg-black text-white hover:bg-gray-800'
               }`}
             >
-              In den Warenkorb
+              {t('cart.add')}
             </a>
             <p className="text-xs text-center text-gray-400 mb-12">
-              Nur 1 verfügbar. Wenn weg, dann weg.
+              {t('product.onlyOne')}
             </p>
 
             {/* Accordions */}
@@ -241,7 +243,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                   onClick={() => toggleAccordion('description')}
                   className="w-full py-4 flex justify-between items-center text-left hover:bg-gray-50 transition-colors px-2"
                 >
-                  <span className="font-bold uppercase text-xs tracking-widest">Beschreibung</span>
+                  <span className="font-bold uppercase text-xs tracking-widest">{t('product.description')}</span>
                   {openAccordion === 'description' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
                 <motion.div 
@@ -261,7 +263,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                   onClick={() => toggleAccordion('authenticity')}
                   className="w-full py-4 flex justify-between items-center text-left hover:bg-gray-50 transition-colors px-2"
                 >
-                  <span className="font-bold uppercase text-xs tracking-widest flex items-center gap-2"><ShieldCheck size={16}/> Authentizität</span>
+                  <span className="font-bold uppercase text-xs tracking-widest flex items-center gap-2"><ShieldCheck size={16}/> {t('product.authenticity')}</span>
                   {openAccordion === 'authenticity' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
                 <motion.div 
@@ -270,7 +272,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                   className="overflow-hidden"
                 >
                   <div className="pb-4 px-2 text-sm text-gray-600 leading-relaxed">
-                    Ja! Unsere Kleidung ist selbstverständlich authentisch. Es ist uns sehr wichtig, dass wir nur Vintage-Kleidung in sehr gutem Zustand verkaufen. Wir empfehlen dir, die Beschreibung und alle Fotos genau anzusehen.
+                    {t('product.authText')}
                   </div>
                 </motion.div>
               </div>
@@ -281,7 +283,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                   onClick={() => toggleAccordion('shipping')}
                   className="w-full py-4 flex justify-between items-center text-left hover:bg-gray-50 transition-colors px-2"
                 >
-                  <span className="font-bold uppercase text-xs tracking-widest flex items-center gap-2"><Truck size={16}/> Versand</span>
+                  <span className="font-bold uppercase text-xs tracking-widest flex items-center gap-2"><Truck size={16}/> {t('product.shipping')}</span>
                   {openAccordion === 'shipping' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
                 <motion.div 
@@ -290,10 +292,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                   className="overflow-hidden"
                 >
                   <div className="pb-4 px-2 text-sm text-gray-600 leading-relaxed">
-                    Alle Pakete werden sofort am gleichen oder nächsten Werktag nach Bestellung mit DHL versendet.<br/><br/>
-                    🇩🇪 Deutschland: 2-4 Werktage<br/>
-                    🇪🇺 Europa: 2-8 Werktage<br/>
-                    🌍 Weltweit: 7-21 Werktage
+                    {t('product.shipText')}
                   </div>
                 </motion.div>
               </div>
@@ -304,7 +303,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                   onClick={() => toggleAccordion('returns')}
                   className="w-full py-4 flex justify-between items-center text-left hover:bg-gray-50 transition-colors px-2"
                 >
-                  <span className="font-bold uppercase text-xs tracking-widest flex items-center gap-2"><RefreshCw size={16}/> Rücksendungen</span>
+                  <span className="font-bold uppercase text-xs tracking-widest flex items-center gap-2"><RefreshCw size={16}/> {t('product.returns')}</span>
                   {openAccordion === 'returns' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
                 <motion.div 
@@ -313,7 +312,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                   className="overflow-hidden"
                 >
                   <div className="pb-4 px-2 text-sm text-gray-600 leading-relaxed">
-                    Ja, wir bieten ein 14-tägiges Rückgaberecht für alle Kunden an. Wir stellen keine Fragen. :)
+                    {t('product.returnText')}
                   </div>
                 </motion.div>
               </div>
@@ -324,7 +323,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         {/* You Might Also Like */}
         {relatedProducts.length > 0 && (
           <div className="mt-32">
-            <h3 className="text-2xl font-light text-center mb-12 uppercase tracking-widest">Das könnte dir auch gefallen</h3>
+            <h3 className="text-2xl font-light text-center mb-12 uppercase tracking-widest">{t('product.related')}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
               {relatedProducts.map(p => (
                 <div key={p.id} onClick={() => window.location.href = `/products/${p.id}`}>

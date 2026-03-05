@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, Search, X } from 'lucide-react';
 import { useState } from 'react';
+import { useShop } from '@/context/ShopContext';
 
 // Menu Data Structure
 interface MenuCategory {
@@ -66,6 +67,9 @@ const MENU_DATA: Record<string, MenuCategory> = {
 
 export default function Header() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isLangOpen, setIsLangOpen] = useState(false);
+  const { language, toggleLanguage, t } = useShop();
 
   return (
     <header 
@@ -87,7 +91,7 @@ export default function Header() {
               onMouseEnter={() => setActiveMenu(item)}
             >
               <span className={`transition-colors ${activeMenu === item ? 'text-black' : 'text-gray-600 hover:text-black'}`}>
-                {item}
+                {t(`nav.${item === 'Herren' ? 'men' : item === 'Damen' ? 'women' : 'brands'}`)}
               </span>
               {activeMenu === item && (
                 <motion.div 
@@ -102,9 +106,42 @@ export default function Header() {
         {/* Icons */}
         <div className="flex items-center space-x-6 text-sm font-medium">
           <div className="hidden lg:flex items-center gap-4 text-gray-500">
-             <span className="cursor-pointer hover:text-black">Suche</span>
+             {/* Search Icon */}
+             <button 
+               onClick={() => setIsSearchOpen(true)} 
+               className="hover:text-black transition-colors"
+             >
+               <Search className="w-5 h-5" />
+             </button>
+
              <span>|</span>
-             <span className="cursor-pointer hover:text-black">Deu</span>
+
+             {/* Language Selector */}
+             <div className="relative">
+               <button 
+                 onClick={() => setIsLangOpen(!isLangOpen)}
+                 className="hover:text-black flex items-center gap-2 text-lg"
+               >
+                 {language === 'de' ? '🇩🇪' : '🇺🇸'}
+               </button>
+               
+               {isLangOpen && (
+                 <div className="absolute top-full right-0 mt-2 bg-white border border-gray-100 shadow-xl rounded-lg p-2 min-w-[120px] flex flex-col gap-1">
+                   <button 
+                     onClick={() => { toggleLanguage('de'); setIsLangOpen(false); }}
+                     className={`flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-50 ${language === 'de' ? 'bg-gray-50 font-bold' : ''}`}
+                   >
+                     <span className="text-xl">🇩🇪</span> Deutsch
+                   </button>
+                   <button 
+                     onClick={() => { toggleLanguage('en'); setIsLangOpen(false); }}
+                     className={`flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-50 ${language === 'en' ? 'bg-gray-50 font-bold' : ''}`}
+                   >
+                     <span className="text-xl">🇺🇸</span> English
+                   </button>
+                 </div>
+               )}
+             </div>
           </div>
           <button className="p-2 hover:bg-gray-100 rounded-full transition-colors relative">
             <ShoppingBag className="w-5 h-5" />
@@ -112,6 +149,34 @@ export default function Header() {
           </button>
         </div>
       </div>
+
+      {/* Search Overlay */}
+      <AnimatePresence>
+        {isSearchOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-0 left-0 right-0 h-24 bg-white z-50 flex items-center border-b border-gray-100"
+          >
+            <div className="container mx-auto px-6 flex items-center gap-4">
+              <Search className="w-6 h-6 text-gray-400" />
+              <input 
+                type="text" 
+                placeholder={t('search.placeholder')}
+                className="flex-1 text-2xl font-light outline-none placeholder-gray-300"
+                autoFocus
+              />
+              <button 
+                onClick={() => setIsSearchOpen(false)}
+                className="p-2 hover:bg-gray-100 rounded-full"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Mega Menu Dropdown */}
       <AnimatePresence>
