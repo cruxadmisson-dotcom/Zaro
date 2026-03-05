@@ -455,19 +455,19 @@ export default function Header() {
               </button>
 
               {/* Announcement Bar inside Overlay (Optional, but looks nice) */}
-              <div className="absolute top-0 left-0 right-0 h-10 bg-black text-white flex items-center justify-center text-xs font-bold tracking-widest uppercase">
+              <div className="hidden md:flex absolute top-0 left-0 right-0 h-10 bg-black text-white items-center justify-center text-xs font-bold tracking-widest uppercase">
                 KOSTENLOSE STANDARDLIEFERUNG FÜR ALLE BESTELLUNGEN
               </div>
 
               {/* Search Input */}
-              <div className="container mx-auto px-6 mt-8 mb-8">
+              <div className="container mx-auto px-6 mt-4 md:mt-8 mb-8">
                 <div className="flex justify-center">
                   <div className="relative w-full max-w-xl group">
                     <Search className="absolute left-0 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-black transition-colors" />
                     <input 
                       type="text" 
                       placeholder={t('search.placeholder')}
-                      className="w-full text-lg bg-transparent border-b border-gray-200 focus:border-black outline-none py-3 pl-10 pr-4 transition-colors placeholder-gray-400"
+                      className="w-full text-lg bg-white border-b border-gray-200 focus:border-black outline-none py-3 pl-10 pr-4 transition-colors placeholder-gray-400"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onKeyDown={handleSearch}
@@ -482,9 +482,13 @@ export default function Header() {
                 {searchQuery && searchResults.length > 0 ? (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-8">
                     {searchResults.map(product => (
-                       <div key={product.id} onClick={() => { setIsSearchOpen(false); }}>
+                       <Link 
+                         key={product.id} 
+                         href={`/products/${product.id}`}
+                         onClick={() => { setIsSearchOpen(false); }}
+                       >
                           <ProductCard product={product} />
-                       </div>
+                       </Link>
                     ))}
                   </div>
                 ) : searchQuery && searchResults.length === 0 ? (
@@ -499,9 +503,13 @@ export default function Header() {
                           .sort(() => 0.5 - Math.random())
                           .slice(0, 4)
                           .map(product => (
-                            <div key={product.id} onClick={() => { setIsSearchOpen(false); }}>
+                            <Link 
+                              key={product.id} 
+                              href={`/products/${product.id}`}
+                              onClick={() => { setIsSearchOpen(false); }}
+                            >
                               <ProductCard product={product} />
-                            </div>
+                            </Link>
                           ))
                         }
                       </div>

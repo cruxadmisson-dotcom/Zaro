@@ -120,16 +120,24 @@ export default function AdminPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
+        
+        // Update local state immediately to reflect changes even if API is slow
+        setProducts(prev => prev.map(p => p.id === editingId ? { ...p, ...payload } : p));
+
       } else {
-        await fetch('/api/admin/products', {
+        const res = await fetch('/api/admin/products', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
+        // For new products, we might need the ID from the server response if we want to add it locally
+        // But re-fetching is safer for new IDs. 
+        // We can just rely on fetchProducts() for new ones or do a best-effort add.
       }
       
       alert('Gespeichert!');
-      fetchProducts();
+      // fetchProducts(); // We can still call this, but the local state update above handles the immediate feedback
+      setTimeout(fetchProducts, 2000); // Delay fetch slightly to allow GitHub to propagate
       setActiveTab('list');
       resetForm();
     } catch (error) {
