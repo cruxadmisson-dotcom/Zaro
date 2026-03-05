@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Product } from '@/data/products';
+import { Product } from '@/lib/products';
 
 interface ProductCardProps {
   product: Product;
@@ -36,7 +36,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           {product.price.toFixed(2)} {product.currency}
         </div>
         <div className="text-xs text-gray-400 mt-1 uppercase">
-           {product.size} • {product.condition.split(' ')[0]}
+           {product.sizes.join(', ')} • {product.condition.split(' ')[0]}
         </div>
       </div>
     </motion.div>
